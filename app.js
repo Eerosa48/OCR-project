@@ -211,9 +211,20 @@ function formatQuestion(raw) {
     .split('\n').map(line => line.trim()).join('\n')
     .replace(/\n{3,}/g,'\n\n').trim();
   if (!cleaned) return '';
-  // Preserve recognized line order and option labels. Insert one blank line before
-  // the first answer option when none exists; don't guess missing answers.
   const lines = cleaned.split('\n');
+  // Radio-button circles often become ©, O, or 0. Recognize those marks and
+  // standardize only the option labels, never the option wording.
+  const circleOption = /^\s*(?:[©®○◯◦〇ⓞ●•]|[oO0](?=[A-Ha-h€]))\s*([A-Ha-h€])[\.\)]?\s+(.+)$/;
+  const marked = [];
+  for (let i=0;i<lines.length;i++) {
+    const match = lines[i].match(circleOption);
+    if (match) marked.push({index:i,body:match[2]});
+  }
+  if (marked.length>=3 && marked.length<=8) {
+    marked.forEach((option,index) => {
+      lines[option.index] = String.fromCharCode(65+index) + '. ' + option.body;
+    });
+  }
   const answerLine = /^\s*(?:[A-Ha-h][\.)]|[1-9][\.)])\s*\S/;
   for (let i=1; i<lines.length; i++) {
     if (answerLine.test(lines[i])) {
