@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="QuickOCR">
+  <meta name="description" content="Turn an iPhone screenshot into editable text, then copy it with one tap. Images stay on your device.">
+  <title>QuickOCR — Screenshot to Text</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@6/dist/tesseract.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="brand" href="./" aria-label="QuickOCR home">
+        <span class="brandmark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="5" width="22" height="22" rx="6" stroke="currentColor" stroke-width="2"/><path d="M12 9h-2a1 1 0 0 0-1 1v2m11-3h2a1 1 0 0 1 1 1v2m-14 8v2a1 1 0 0 0 1 1h2m8 0h2a1 1 0 0 0 1-1v-2M12 15h8m-8 4h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+        <span>Quick<span class="brand-accent">OCR</span></span>
+      </a>
+      <div class="local-chip"><span class="local-dot"></span> On-device OCR</div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="app-title">
+        <p class="eyebrow">SCREENSHOT → TEXT</p>
+        <h1 id="app-title">Scan. Copy. <span>Next.</span></h1>
+        <p>Choose a screenshot, review the text, and copy it to another app. Repeat as often as you like.</p>
+      </section>
+
+      <section class="panel choose-panel" aria-label="Choose screenshot">
+        <div class="section-title"><span class="number">1</span><h2>Select a screenshot</h2></div>
+        <div class="choose-zone" id="chooseZone" role="button" tabindex="0" aria-label="Choose screenshot from Photos or Files">
+          <span class="upload-glyph" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="8" y="10" width="32" height="28" rx="6" stroke="currentColor" stroke-width="2"/><circle cx="19" cy="20" r="3" stroke="currentColor" stroke-width="2"/><path d="m12 33 10-10 7 6 5-4 4 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></span>
+          <span class="choose-copy"><strong>Choose from Photos</strong><small>PNG, JPG, HEIC* or another supported image</small></span>
+          <span class="chevron" aria-hidden="true">›</span>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" class="sr-only" aria-label="Choose screenshot" />
+        <div class="selected-file" id="selectedFile" hidden>
+          <button type="button" id="previewButton" class="thumbnail-button" aria-label="Enlarge selected screenshot"><img id="preview" alt="Selected screenshot preview"></button>
+          <div class="file-info"><strong id="fileName">Screenshot</strong><span id="fileMeta">Selected image</span></div>
+          <button id="replaceButton" type="button" class="small-button">Change</button>
+        </div>
+        <div class="progress-wrap" id="progressWrap" hidden>
+          <div class="progress-heading"><span class="spinner" id="spinner" aria-hidden="true"></span><span id="statusText" role="status" aria-live="polite">Preparing OCR…</span><span id="percentText"></span></div>
+          <div class="progress-track" role="progressbar" aria-label="OCR progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </section>
+
+      <section class="panel result-panel" id="resultPanel" aria-label="Extracted text">
+        <div class="result-heading"><div class="section-title"><span class="number">2</span><h2>Review & copy</h2></div><span class="result-tag" id="resultTag">Ready for your screenshot</span></div>
+        <p class="helper" id="resultHelper">Your extracted text will appear here automatically.</p>
+        <label class="sr-only" for="resultText">Extracted question text</label>
+        <textarea id="resultText" placeholder="Your question and answer choices will appear here…" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" rows="9"></textarea>
+        <div id="notice" class="notice" hidden role="status"></div>
+        <div class="main-actions" id="mainActions">
+          <button id="copyButton" class="button primary" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> Copy text</button>
+          <button id="nextButton" class="button secondary" type="button" disabled>Next screenshot <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="other-actions">
+          <button id="downloadButton" class="link-button" type="button" disabled>Save .TXT</button>
+          <span class="action-separator" aria-hidden="true">·</span>
+          <button id="clearButton" class="link-button" type="button" disabled>Clear text</button>
+          <span class="action-separator" aria-hidden="true">·</span>
+          <span class="counter" id="counter">0 processed</span>
+        </div>
+      </section>
+
+      <details class="tools" id="tools">
+        <summary>Having trouble reading an image? <span aria-hidden="true">⌄</span></summary>
+        <div class="tools-body">
+          <p>Try stronger contrast or rotation, then extract again. Blurry, obstructed, or very small text may still need manual corrections.</p>
+          <label class="check-row"><input type="checkbox" id="enhanceCheck"> Improve contrast (experimental)</label>
+          <div class="tool-buttons">
+            <button type="button" class="small-button" id="rotateButton" disabled>Rotate 90°</button>
+            <button type="button" class="small-button" id="retryButton" disabled>Re-extract text</button>
+          </div>
+        </div>
+      </details>
+
+      <p class="privacy-note"><span aria-hidden="true">◈</span> No accounts, daily OCR quotas, or image uploads to a server. The OCR software downloads from a CDN. A copy of the latest extracted text is saved in this browser so you can return to it.</p>
+    </main>
+    <footer>QuickOCR · English text recognition · Always double-check OCR before relying on it.</footer>
+  </div>
+
+  <dialog id="previewDialog" aria-label="Screenshot preview"><div class="dialog-top"><strong>Screenshot preview</strong><button id="closePreview" class="small-button" type="button">Close ✕</button></div><img id="previewLarge" alt="Selected image enlarged"></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
