@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@6/dist/tesseract.min.js"></script>
   <script defer src="app.js"></script>
+  <script defer src="crop.js"></script>
 </head>
 <body>
   <div class="page">
@@ -44,6 +45,7 @@
         <div class="selected-file" id="selectedFile" hidden>
           <button type="button" id="previewButton" class="thumbnail-button" aria-label="Enlarge selected screenshot"><img id="preview" alt="Selected screenshot preview"></button>
           <div class="file-info"><strong id="fileName">Screenshot</strong><span id="fileMeta">Selected image</span></div>
+          <button id="adjustCropButton" type="button" class="small-button">Crop</button>
           <button id="replaceButton" type="button" class="small-button">Change</button>
         </div>
         <div class="progress-wrap" id="progressWrap" hidden>
@@ -74,7 +76,7 @@
       <details class="tools" id="tools">
         <summary>Having trouble reading an image? <span aria-hidden="true">⌄</span></summary>
         <div class="tools-body">
-          <p>Try stronger contrast or rotation, then extract again. Blurry, obstructed, or very small text may still need manual corrections.</p>
+          <p>First tap <strong>Crop</strong> above to isolate the question, then extract again. Stronger contrast and rotation are optional. Unreadable characters still need manual correction.</p>
           <label class="check-row"><input type="checkbox" id="enhanceCheck"> Improve contrast (experimental)</label>
           <div class="tool-buttons">
             <button type="button" class="small-button" id="rotateButton" disabled>Rotate 90°</button>
@@ -89,6 +91,24 @@
   </div>
 
   <dialog id="previewDialog" aria-label="Screenshot preview"><div class="dialog-top"><strong>Screenshot preview</strong><button id="closePreview" class="small-button" type="button">Close ✕</button></div><img id="previewLarge" alt="Selected image enlarged"></dialog>
+  <dialog id="cropDialog" class="crop-dialog" aria-label="Crop question before OCR">
+    <div class="dialog-top"><strong>Crop to the question</strong></div>
+    <p class="crop-help">Drag the purple border or its corners to include the entire question and all answer choices. Touch outside the border to draw a new area.</p>
+    <div id="cropStage" class="crop-stage">
+      <img id="cropImage" alt="Selected screenshot to crop">
+      <div id="cropSelection" class="crop-selection">
+        <span class="crop-handle nw" data-corner="nw"></span>
+        <span class="crop-handle ne" data-corner="ne"></span>
+        <span class="crop-handle sw" data-corner="sw"></span>
+        <span class="crop-handle se" data-corner="se"></span>
+      </div>
+    </div>
+    <label class="crop-remember"><input id="rememberCrop" type="checkbox" checked> Use this area for the next similarly shaped screenshot</label>
+    <div class="crop-actions">
+      <button type="button" class="button secondary" id="cropFull">Use whole image</button>
+      <button type="button" class="button primary" id="cropApply">Crop &amp; extract</button>
+    </div>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
