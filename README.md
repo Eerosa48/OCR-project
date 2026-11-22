@@ -3,8 +3,8 @@
 A lightweight mobile web app optimized for one image at a time:
 
 1. Open the app on your iPhone.
-2. Tap **Choose from Photos** and select a screenshot.
-3. OCR automatically extracts text into an editable box.
+2. Tap **Choose from Photos** and select a screenshot. The first time, crop to the question and its choices.
+3. Tap **Crop & extract**. OCR reads only that selected area. When you choose another image with a similar aspect ratio, the saved crop is reused automatically.
 4. Review the text, tap **Copy text**, switch to ChatGPT or another app, and paste.
 5. Come back and tap **Next screenshot**. Repeat.
 
@@ -22,7 +22,7 @@ In this folder, run `python -m http.server 8000`, then visit http://localhost:80
 
 - The **Copy text** action works best on a secure HTTPS origin and must be tapped by the user, per iOS Safari clipboard rules. A manual selection fallback is available.
 - The app retains the last recognized/edited text using local browser storage, useful when you leave for another app and return. It does **not** retain the image across page reloads. Tap **Clear text** to delete that locally saved draft.
-- Poor FaceTime screenshots may benefit from the **Having trouble reading an image?** section: improve contrast, rotate, and re-extract. OCR cannot restore information that wasn't captured or is too blurry to read.
+- **Crop first**: on a phone photograph of a monitor, the question may occupy less than 20% of the picture. Use the cropping rectangle and include all answer choices. Cropping is reused on similarly shaped photos, and can be changed with **Crop** beside the selected file. Contrast and rotation remain optional. OCR cannot restore details that are too blurry.
 - iOS versions/browser compatibility determine whether HEIC images can be decoded. PNG and JPEG are best.
 - App keeps a session-only counter of successful OCR runs and has an optional `.txt` export.
 - The app doesn't generate question answers; it only transcribes the text. Check OCR before using extracted wording.
@@ -33,5 +33,6 @@ In this folder, run `python -m http.server 8000`, then visit http://localhost:80
 - `index.html` — mobile UI
 - `styles.css` — responsive visual design
 - `app.js` — image processing, OCR, editable result, clipboard, export
+- `crop.js` — crop UI, touch handles, and remembered capture region
 - `manifest.webmanifest` + `icon-*.png` — add-to-home-screen icon/metadata
 - `sw.js` — caches first-party application files (not the OCR engine)

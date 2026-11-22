@@ -118,7 +118,7 @@ async function selectImage(file) {
   $('fileName').textContent = file.name;
   $('fileMeta').textContent = (file.size/1024/1024).toFixed(1) + ' MB · Tap image to inspect';
   resetOutput();
-  await processImage(selectedVersion);
+  await beginCroppingAndOCR(selectedVersion);
 }
 function isLostWorkerError(error) {
   return /terminated|worker|cannot read properties of null|postmessage|invalidstateerror/i.test(String(error));
@@ -144,7 +144,11 @@ async function getWorker() {
         setStatus('Loading OCR engine…');
       }
     }
-  }).then(worker => (ocrWorker = worker)).catch(error => {
+  }).then(async worker => {
+    await worker.setParameters({tessedit_pageseg_mode:'6'});
+    ocrWorker = worker;
+    return worker;
+  }).catch(error => {
     workerPromise = null;
     throw error;
   });
@@ -163,11 +167,19 @@ async function prepareImage(file) {
   const img = await decode(file);
   const maxDimension = 3200;
   const maxPixels = 7_000_000;
-  const w = img.naturalWidth, h = img.naturalHeight;
-  if (!w || !h) throw new Error('The image has no readable dimensions.');
-  const scale = Math.min(1, maxDimension/Math.max(w,h), Math.sqrt(maxPixels/(w*h)));
-  const width = Math.max(1,Math.round(w*scale));
-  const height = Math.max(1,Math.round(h*scale));
+  const originalW = img.naturalWidth, originalH = img.naturalHeight;
+  if (!originalW || !originalH) throw new Error('The image has no readable dimensions.');
+  // OCR must work on the selected question, not on the phone's entire photo.
+  const region = validCrop(cropRect) ? cropRect : {x:0,y:0,w:1,h:1};
+  const sx = Math.floor(region.x * originalW);
+  const sy = Math.floor(region.y * originalH);
+  const sw = Math.max(1,Math.min(originalW-sx,Math.round(region.w*originalW)));
+  const sh = Math.max(1,Math.min(originalH-sy,Math.round(region.h*originalH)));
+  const isCropped = region.w < .99 || region.h < .99;
+  // Moderate enlargement helps small glyphs without creating new image detail.
+  const scale = Math.min(isCropped ? 2 : 1,maxDimension/Math.max(sw,sh),Math.sqrt(maxPixels/(sw*sh)));
+  const width = Math.max(1,Math.round(sw*scale));
+  const height = Math.max(1,Math.round(sh*scale));
   const swap = rotation % 180 !== 0;
   const canvas = document.createElement('canvas');
   canvas.width = swap ? height : width;
@@ -175,10 +187,13 @@ async function prepareImage(file) {
   const enhance = $('enhanceCheck').checked;
   const ctx = canvas.getContext('2d',{willReadFrequently:enhance});
   if (!ctx) throw new Error('Cannot prepare image on this device.');
-  ctx.fillStyle = 'white'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.translate(canvas.width/2,canvas.height/2);
   ctx.rotate(rotation * Math.PI/180);
-  ctx.drawImage(img,-width/2,-height/2,width,height);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img,sx,sy,sw,sh,-width/2,-height/2,width,height);
   if (enhance) {
     const pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
     const data = pixels.data;
@@ -196,9 +211,20 @@ function formatQuestion(raw) {
     .split('\n').map(line => line.trim()).join('\n')
     .replace(/\n{3,}/g,'\n\n').trim();
   if (!cleaned) return '';
-  // Preserve recognized line order and option labels. Insert one blank line before
-  // the first answer option when none exists; don't guess missing answers.
   const lines = cleaned.split('\n');
+  // Radio-button circles often become ©, O, or 0. Recognize those marks and
+  // standardize only the option labels, never the option wording.
+  const circleOption = /^\s*(?:[©®○◯◦〇ⓞ●•]|[oO0](?=[A-Ha-h€]))\s*([A-Ha-h€])[\.\)]?\s+(.+)$/;
+  const marked = [];
+  for (let i=0;i<lines.length;i++) {
+    const match = lines[i].match(circleOption);
+    if (match) marked.push({index:i,body:match[2]});
+  }
+  if (marked.length>=3 && marked.length<=8) {
+    marked.forEach((option,index) => {
+      lines[option.index] = String.fromCharCode(65+index) + '. ' + option.body;
+    });
+  }
   const answerLine = /^\s*(?:[A-Ha-h][\.)]|[1-9][\.)])\s*\S/;
   for (let i=1; i<lines.length; i++) {
     if (answerLine.test(lines[i])) {
