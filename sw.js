@@ -1,6 +1,6 @@
 /* Cache the app shell only. External OCR engine/models remain network-dependent. */
-const CACHE='quickocr-shell-v1';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon.svg'];
+const CACHE='quickocr-shell-v2';
+const ASSETS=['./','./index.html','./styles.css','./app.js','./crop.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon.svg'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
