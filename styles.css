@@ -29,3 +29,17 @@ dialog{border:1px solid #3a4d6d;border-radius:16px;background:#10182a;color:var(
 @media(max-width:365px){.page{padding:0 12px}.local-chip{font-size:10px}.panel{padding:14px}.intro h1{font-size:32px}.button{font-size:12px}.choose-zone{gap:9px}.upload-glyph{width:44px;height:44px}}
 @media(min-width:740px){.page{max-width:690px}.intro{padding:33px 1px 24px}.panel{padding:23px}.intro h1{font-size:46px}#resultText{min-height:230px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.spinner{animation:none}.progress-fill,.toast{transition:none}}
+
+/* Touch-friendly cropping: essential for small text inside phone photos. */
+.crop-dialog{width:min(95vw,635px);max-height:94dvh;overflow:auto}
+.crop-help{font-size:12px;line-height:1.48;color:var(--muted);margin:0 0 12px}
+.crop-stage{position:relative;margin:0 auto;background:#111;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;border-radius:5px}
+.crop-stage img{display:block;width:100%;height:100%;max-height:none;object-fit:fill;pointer-events:none}
+.crop-selection{position:absolute;z-index:1;border:2px solid #c7baff;box-shadow:0 0 0 999px #03081391,inset 0 0 0 1px #151633;touch-action:none}
+.crop-handle{position:absolute;width:25px;height:25px;border:2px solid #d9d2ff;background:#8a7bdf;border-radius:50%;touch-action:none;box-shadow:0 1px 8px #0007}
+.crop-handle.nw{top:-13px;left:-13px}.crop-handle.ne{top:-13px;right:-13px}.crop-handle.sw{bottom:-13px;left:-13px}.crop-handle.se{bottom:-13px;right:-13px}
+.crop-remember{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px;line-height:1.4;margin:12px 0}
+.crop-remember input{width:18px;height:18px;accent-color:#a5b8ff;flex:none}
+.crop-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.crop-actions .button{font-size:12px;min-height:49px}
+@media(max-height:630px){.crop-stage{max-height:45vh}}
