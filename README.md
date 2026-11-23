@@ -47,4 +47,4 @@ A remembered crop is convenient for screenshots with the same layout, but a diff
 
 Before relying on this for time-sensitive questions, try a dark screen, a white screen, a cream/yellow screen, and at least one mixed-layout screenshot. Verify all answer choices were recognized and preserved, then try one image where the camera has mild moiré or glare. Confirm normal processing remains fast on the actual iPhone and that the optional alternate scans can recover a difficult example. No preprocessing can restore text that is unreadable in the captured image.
 
-The app also recognizes additional common OCR distortions of radio-button labels, including tight pairs such as `OB` and garbled labels like `© BD`. This is only a formatting heuristic: always review question and option wording.
+The app also recognizes additional common OCR distortions of radio-button labels, including tight pairs such as `OB` and garbled labels like `© BD`. This is only a formatting heuristic: it removes a leading letter only when punctuation explicitly identifies a label, reducing the risk of deleting words from unfamiliar answer choices. Always review question and option wording.
