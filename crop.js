@@ -1,7 +1,11 @@
 'use strict';
 // Crop UI for small questions within full-screen or photographed screenshots.
 // Region coordinates are normalized, so a saved crop can be reused on similarly-sized images.
-const CROP_KEY = 'quickocr.crop.v2';
+// Increment the crop key so test-session crops cannot silently hide a new layout.
+const CROP_KEY = 'quickocr.crop.v3';
+// The first crop must never silently exclude questions near the top or edges.
+const DEFAULT_CROP = Object.freeze({x:.02, y:.02, w:.96, h:.96});
+function freshCrop() { return {...DEFAULT_CROP}; }
 let cropRect = null;
 let usedRememberedCrop = false;
 let cropAspect = 0;
@@ -34,7 +38,7 @@ function sizeCropStage() {
 }
 function showCropDialog() {
   cropImage.src = imageUrl;
-  if (!validCrop(cropRect)) cropRect = { x:.09, y:.24, w:.82, h:.5 };
+  if (!validCrop(cropRect)) cropRect = freshCrop();
   cropDialog.showModal();
   sizeCropStage();
   showCropSelection();
@@ -54,7 +58,7 @@ async function beginCroppingAndOCR(version) {
       await processImage(version);
       return;
     }
-    cropRect = { x:.09, y:.24, w:.82, h:.5 };
+    cropRect = freshCrop();
     showCropDialog();
   } catch (error) {
     showNotice(error?.message || 'Could not read the selected image.');
