@@ -41,7 +41,7 @@ In this folder, run `python -m http.server 8000`, then visit http://localhost:80
 
 The standard scan remains a single OCR pass for speed. It conservatively detects predominantly dark backgrounds and inverts them to dark text on a light background for recognition; light, cream, and yellow backgrounds remain unchanged. When a screenshot mixes dark and light panels, the original appearance may be retained. Under **Having trouble reading an image?**, tap **Try enhanced recognition** for three optional on-device passes: contrast adjustment, sparse-text layout, and the opposite image polarity. Review alternatives and explicitly choose **Use this text**; the standard result is not overwritten automatically. Higher confidence does not guarantee correct wording.
 
-A remembered crop is convenient for screenshots with the same layout, but a different screen can have the same aspect ratio. The result screen now warns when a saved crop was reused. If any part of the question or answer choices is absent, tap **Crop**, adjust the rectangle, and re-extract.
+The first crop now starts almost full-screen (2% margin) instead of assuming the text is near the center. This matters for interfaces where questions appear at the top or bottom. Previous trial crops are intentionally cleared after the update. A remembered crop is convenient for screenshots with the same layout, but a different screen can have the same aspect ratio. The result screen now warns when a saved crop was reused. If any part of the question or answer choices is absent, tap **Crop**, adjust the rectangle, and re-extract.
 
 ### Preflight for unknown layouts
 
