@@ -218,7 +218,9 @@ function formatQuestion(raw) {
   // ©, O, or 0. Detect them without changing the words inside each option.
   // Only normalize labels when multiple consecutive option-like lines exist.
   const bullet = /^\s*(?:[©®○◯◦〇ⓞ●•◎]|[oO0](?=\s*[A-Ha-h8€&]{1,3}(?:[.)]|\s)))\s*(.+)$/;
-  const labelled = /^\s*([A-Ha-h8€&0]{1,3})[.)]?\s+(.+)$/;
+  // Strip a detected letter only when punctuation explicitly marks it as a label.
+  // An unlabeled option starting with "Can", "Do", or "A" is real answer text.
+  const labelled = /^\s*([A-Ha-h])[.)]\s+(.+)$/;
   const marked = [];
   lines.forEach((line,index) => {
     const circle=line.match(bullet);
@@ -251,6 +253,8 @@ async function processImage(version) {
   setStatus('Preparing image…');
   try {
     const canvas = await prepareImage(imageFile);
+    // Keep one OCR pass by default while normalizing predominantly dark themes.
+    if (looksLikeLightTextOnDark(canvas)) invertForOCR(canvas);
     setStatus('Loading OCR engine…');
     let worker = await getWorker();
     let result;
@@ -275,7 +279,10 @@ async function processImage(version) {
       $('resultTag').textContent = confidence !== null && confidence < 70 ? 'Check accuracy' : 'Text extracted';
       $('resultTag').className = 'result-tag ' + (confidence !== null && confidence < 70 ? 'warning':'success');
       $('resultHelper').textContent = 'Check the question and answers, then tap Copy text.';
-      if (confidence !== null && confidence < 70) showNotice('Some text may have been misread. Compare it with the screenshot and edit any mistakes.');
+      const warnings = [];
+      if (confidence !== null && confidence < 70) warnings.push('Some text may have been misread. Compare it with the screenshot and edit any mistakes.');
+      if (usedRememberedCrop) warnings.push('Saved crop reused. If any question or answer choice is missing, tap Crop and re-extract.');
+      if (warnings.length) showNotice(warnings.join(' '));
     } else {
       $('resultTag').textContent = 'No text found';
       $('resultTag').className = 'result-tag warning';
