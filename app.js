@@ -218,7 +218,9 @@ function formatQuestion(raw) {
   // ©, O, or 0. Detect them without changing the words inside each option.
   // Only normalize labels when multiple consecutive option-like lines exist.
   const bullet = /^\s*(?:[©®○◯◦〇ⓞ●•◎]|[oO0](?=\s*[A-Ha-h8€&]{1,3}(?:[.)]|\s)))\s*(.+)$/;
-  const labelled = /^\s*([A-Ha-h8€&0]{1,3})[.)]?\s+(.+)$/;
+  // Strip a detected letter only when punctuation explicitly marks it as a label.
+  // An unlabeled option starting with "Can", "Do", or "A" is real answer text.
+  const labelled = /^\s*([A-Ha-h])[.)]\s+(.+)$/;
   const marked = [];
   lines.forEach((line,index) => {
     const circle=line.match(bullet);
