@@ -33,6 +33,7 @@ function setBusy(busy) {
   $('retryButton').disabled = busy || !imageFile;
   $('rotateButton').disabled = busy || !imageFile;
   $('enhanceCheck').disabled = busy;
+  $('altTry').disabled = busy || !imageFile;
   $('progressWrap').hidden = !busy;
   $('copyButton').disabled = !$('resultText').value.trim();
   $('downloadButton').disabled = !$('resultText').value.trim();
@@ -93,6 +94,7 @@ function releaseImage() {
 }
 function resetOutput() {
   confidence = null;
+  resetAlternativeOutput();
   $('resultText').value = '';
   $('resultTag').textContent = 'Reading image…';
   $('resultTag').className = 'result-tag';
@@ -212,17 +214,25 @@ function formatQuestion(raw) {
     .replace(/\n{3,}/g,'\n\n').trim();
   if (!cleaned) return '';
   const lines = cleaned.split('\n');
-  // Radio-button circles often become ©, O, or 0. Recognize those marks and
-  // standardize only the option labels, never the option wording.
-  const circleOption = /^\s*(?:[©®○◯◦〇ⓞ●•]|[oO0](?=[A-Ha-h€]))\s*([A-Ha-h€])[\.\)]?\s+(.+)$/;
+  // Radio-button circles on photographed screens are frequently recognized as
+  // ©, O, or 0. Detect them without changing the words inside each option.
+  // Only normalize labels when multiple consecutive option-like lines exist.
+  const bullet = /^\s*(?:[©®○◯◦〇ⓞ●•◎]|[oO0](?=\s*[A-Ha-h8€&]{1,3}(?:[.)]|\s)))\s*(.+)$/;
+  const labelled = /^\s*([A-Ha-h8€&0]{1,3})[.)]?\s+(.+)$/;
   const marked = [];
-  for (let i=0;i<lines.length;i++) {
-    const match = lines[i].match(circleOption);
-    if (match) marked.push({index:i,body:match[2]});
-  }
-  if (marked.length>=3 && marked.length<=8) {
+  lines.forEach((line,index) => {
+    const circle=line.match(bullet);
+    if (!circle) return;
+    let content=circle[1].trim();
+    const candidate=content.match(labelled);
+    // 'BD', '8', and '€' are common recognition errors in tiny choice labels.
+    // The label is assigned by order; the text body itself is left intact.
+    if (candidate && candidate[2].trim()) content=candidate[2].trim();
+    marked.push({index,body:content});
+  });
+  if (marked.length >= 3 && marked.length <= 8) {
     marked.forEach((option,index) => {
-      lines[option.index] = String.fromCharCode(65+index) + '. ' + option.body;
+      lines[option.index]=String.fromCharCode(65+index)+'. '+option.body;
     });
   }
   const answerLine = /^\s*(?:[A-Ha-h][\.)]|[1-9][\.)])\s*\S/;
@@ -236,6 +246,7 @@ function formatQuestion(raw) {
 }
 async function processImage(version) {
   if (working || !imageFile) return;
+  resetAlternativeOutput();
   setBusy(true);
   setStatus('Preparing image…');
   try {

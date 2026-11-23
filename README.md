@@ -36,3 +36,9 @@ In this folder, run `python -m http.server 8000`, then visit http://localhost:80
 - `crop.js` — crop UI, touch handles, and remembered capture region
 - `manifest.webmanifest` + `icon-*.png` — add-to-home-screen icon/metadata
 - `sw.js` — caches first-party application files (not the OCR engine)
+
+## Improving recognition on difficult photos
+
+The standard scan remains the default for speed. Under **Having trouble reading an image?**, tap **Try enhanced recognition** for optional on-device passes using adaptive grayscale contrast and an alternate page segmentation mode. You can compare the alternatives in the preview and explicitly choose **Use this text**. The existing result is not overwritten automatically. Check every answer against the source photo; higher OCR confidence does not guarantee correct wording.
+
+The app also recognizes additional common OCR distortions of radio-button labels, including tight pairs such as `OB` and garbled labels like `© BD`. This is only a formatting heuristic: always review question and option wording.

@@ -16,6 +16,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@6/dist/tesseract.min.js"></script>
   <script defer src="app.js"></script>
   <script defer src="crop.js"></script>
+  <script defer src="ocr-quality.js"></script>
 </head>
 <body>
   <div class="page">
@@ -81,6 +82,16 @@
           <div class="tool-buttons">
             <button type="button" class="small-button" id="rotateButton" disabled>Rotate 90°</button>
             <button type="button" class="small-button" id="retryButton" disabled>Re-extract text</button>
+          </div>
+          <div class="quality-tools">
+            <p><strong>Still seeing mistakes?</strong> Try two different recognition settings. Your original text will be preserved unless you choose to replace it.</p>
+            <button type="button" class="small-button quality-try" id="altTry" disabled>Try enhanced recognition</button>
+            <div id="altResults" class="quality-results" hidden>
+              <label for="altChoice">Compare an alternate result</label>
+              <select id="altChoice" aria-label="Choose alternate OCR result"></select>
+              <textarea id="altText" readonly spellcheck="false" rows="8" aria-label="Alternate OCR text"></textarea>
+              <button id="altUse" type="button" class="small-button quality-use">Use this text</button>
+            </div>
           </div>
         </div>
       </details>

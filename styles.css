@@ -43,3 +43,13 @@ dialog{border:1px solid #3a4d6d;border-radius:16px;background:#10182a;color:var(
 .crop-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
 .crop-actions .button{font-size:12px;min-height:49px}
 @media(max-height:630px){.crop-stage{max-height:45vh}}
+
+/* Optional OCR alternatives are deliberately tucked away from the main flow. */
+.quality-tools{border-top:1px solid var(--border);margin-top:17px;padding-top:13px}
+.quality-tools p{margin:0 0 11px}
+.quality-try{background:#344c75;border-color:#6b87b9;color:#eef4ff;width:100%;min-height:40px}
+.quality-results{margin-top:12px;border:1px solid #405271;border-radius:12px;padding:12px;background:#0e192b}
+.quality-results label{display:block;color:#c4d1e7;font-size:12px;margin-bottom:7px}
+.quality-results select{width:100%;background:#1c2a43;color:#f0f4ff;border:1px solid #516683;border-radius:8px;font-size:16px;padding:9px}
+.quality-results textarea{display:block;width:100%;min-height:170px;max-height:35vh;resize:vertical;margin:10px 0;padding:11px;border-radius:8px;border:1px solid #516683;background:#0b1322;color:#edf3ff;font-size:16px;line-height:1.5}
+.quality-use{width:100%;min-height:43px;background:#354a70;border-color:#7892c4}
