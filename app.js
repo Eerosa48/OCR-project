@@ -33,6 +33,7 @@ function setBusy(busy) {
   $('retryButton').disabled = busy || !imageFile;
   $('rotateButton').disabled = busy || !imageFile;
   $('enhanceCheck').disabled = busy;
+  $('altTry').disabled = busy || !imageFile;
   $('progressWrap').hidden = !busy;
   $('copyButton').disabled = !$('resultText').value.trim();
   $('downloadButton').disabled = !$('resultText').value.trim();
