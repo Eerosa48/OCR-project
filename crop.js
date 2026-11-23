@@ -3,6 +3,7 @@
 // Region coordinates are normalized, so a saved crop can be reused on similarly-sized images.
 const CROP_KEY = 'quickocr.crop.v2';
 let cropRect = null;
+let usedRememberedCrop = false;
 let cropAspect = 0;
 let cropDrag = null;
 let cropImageSize = { width: 0, height: 0 };
@@ -42,12 +43,14 @@ async function beginCroppingAndOCR(version) {
   try {
     const img = await decode(imageFile);
     if (version !== selectedVersion) return;
+    usedRememberedCrop = false;
     cropImageSize = { width: img.naturalWidth, height: img.naturalHeight };
     cropAspect = img.naturalWidth / img.naturalHeight;
     let saved = null;
     try { saved = JSON.parse(localStorage.getItem(CROP_KEY) || 'null'); } catch (_) {}
     if (saved && validCrop(saved.rect) && Math.abs(saved.aspect / cropAspect - 1) < .025) {
       cropRect = saved.rect;
+      usedRememberedCrop = true;
       await processImage(version);
       return;
     }
@@ -111,6 +114,7 @@ cropStage.addEventListener('pointerup',endCropDrag);
 cropStage.addEventListener('pointercancel',endCropDrag);
 $('cropApply').addEventListener('click',async () => {
   if (!validCrop(cropRect)) return;
+  usedRememberedCrop = false;
   try {
     if ($('rememberCrop').checked) localStorage.setItem(CROP_KEY,JSON.stringify({aspect:cropAspect,rect:cropRect}));
     else localStorage.removeItem(CROP_KEY);
@@ -121,6 +125,7 @@ $('cropApply').addEventListener('click',async () => {
 });
 $('cropFull').addEventListener('click',async () => {
   cropRect = null;
+  usedRememberedCrop = false;
   try { localStorage.removeItem(CROP_KEY); } catch (_) {}
   cropDialog.close();
   resetOutput();
