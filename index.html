@@ -77,14 +77,14 @@
       <details class="tools" id="tools">
         <summary>Having trouble reading an image? <span aria-hidden="true">⌄</span></summary>
         <div class="tools-body">
-          <p>First tap <strong>Crop</strong> above to isolate the question, then extract again. Stronger contrast and rotation are optional. Unreadable characters still need manual correction.</p>
+          <p>The standard scan automatically handles clearly dark or light backgrounds. If a layout differs or a saved crop misses text, tap <strong>Crop</strong> to include the entire question, then re-extract. Contrast and rotation are optional.</p>
           <label class="check-row"><input type="checkbox" id="enhanceCheck"> Improve contrast (experimental)</label>
           <div class="tool-buttons">
             <button type="button" class="small-button" id="rotateButton" disabled>Rotate 90°</button>
             <button type="button" class="small-button" id="retryButton" disabled>Re-extract text</button>
           </div>
           <div class="quality-tools">
-            <p><strong>Still seeing mistakes?</strong> Try two different recognition settings. Your original text will be preserved unless you choose to replace it.</p>
+            <p><strong>Still seeing mistakes?</strong> Try three alternative recognition settings, including opposite text/background colors. Your original text will be preserved unless you choose to replace it.</p>
             <button type="button" class="small-button quality-try" id="altTry" disabled>Try enhanced recognition</button>
             <div id="altResults" class="quality-results" hidden>
               <label for="altChoice">Compare an alternate result</label>
